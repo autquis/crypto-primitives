@@ -3,8 +3,6 @@ use ark_ff::PrimeField;
 use ark_r1cs_std::alloc::AllocVar;
 use ark_r1cs_std::boolean::Boolean;
 use ark_r1cs_std::uint8::UInt8;
-use ark_r1cs_std::fields::emulated_fp::params::{get_params, OptimizationType};
-use ark_r1cs_std::fields::emulated_fp::{AllocatedEmulatedFpVar, EmulatedFpVar};
 use ark_r1cs_std::fields::fp::{AllocatedFp, FpVar};
 use ark_r1cs_std::fields::nonnative::params::{get_params, OptimizationType};
 use ark_r1cs_std::fields::nonnative::{AllocatedNonNativeFieldVar, NonNativeFieldVar};

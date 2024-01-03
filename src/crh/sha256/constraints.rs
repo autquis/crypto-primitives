@@ -13,7 +13,7 @@ use core::{borrow::Borrow, iter, marker::PhantomData};
 use ark_ff::PrimeField;
 use ark_r1cs_std::{
     alloc::{AllocVar, AllocationMode},
-    bits::{boolean::Boolean, uint32::UInt32, uint8::UInt8, ToBytesGadget},
+    {boolean::Boolean, uint32::UInt32, uint8::UInt8, convert::ToBytesGadget},
     eq::EqGadget,
     select::CondSelectGadget,
     R1CSVar,

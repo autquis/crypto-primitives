@@ -1,7 +1,7 @@
 use crate::Vec;
 
 use ark_ff::PrimeField;
-use ark_r1cs_std::bits::{boolean::Boolean, uint32::UInt32, uint8::UInt8, ToBitsGadget};
+use ark_r1cs_std::{boolean::Boolean, uint32::UInt32, uint8::UInt8, convert::ToBitsGadget};
 use ark_relations::r1cs::SynthesisError;
 use core::iter;
 
@@ -77,7 +77,7 @@ mod test {
     use super::*;
 
     use ark_bls12_377::Fr;
-    use ark_r1cs_std::{bits::uint32::UInt32, R1CSVar};
+    use ark_r1cs_std::{uint32::UInt32, R1CSVar};
     use ark_std::rand::Rng;
 
     const NUM_TESTS: usize = 10_000;

@@ -6,7 +6,7 @@ use ark_r1cs_std::alloc::AllocVar;
 use ark_r1cs_std::boolean::Boolean;
 #[allow(unused)]
 use ark_r1cs_std::prelude::*;
-use ark_r1cs_std::ToBytesGadget;
+use ark_r1cs_std::convert::ToBytesGadget;
 use ark_relations::r1cs::{Namespace, SynthesisError};
 use ark_std::borrow::Borrow;
 use ark_std::fmt::Debug;

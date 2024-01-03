@@ -1,7 +1,7 @@
 use ark_ff::{BigInteger, PrimeField};
 use ark_r1cs_std::prelude::*;
 use ark_r1cs_std::{
-    bits::boolean::Boolean,
+    boolean::Boolean,
     fields::{
         fp::{AllocatedFp, FpVar},
         nonnative::{

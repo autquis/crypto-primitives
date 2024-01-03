@@ -17,7 +17,7 @@ use ark_r1cs_std::{
 use ark_relations::r1cs::{Namespace, SynthesisError};
 
 use crate::crh::bowe_hopwood::{TwoToOneCRH, CRH};
-use ark_r1cs_std::bits::boolean::Boolean;
+use ark_r1cs_std::boolean::Boolean;
 
 type ConstraintF<P> = <<P as CurveConfig>::BaseField as Field>::BasePrimeField;
 

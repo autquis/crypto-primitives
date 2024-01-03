@@ -240,6 +240,7 @@ mod field_mt_tests {
     use crate::merkle_tree::tests::test_utils::poseidon_parameters;
     use crate::merkle_tree::{constraints::PathVar, Config, IdentityDigestConverter, MerkleTree};
     use ark_r1cs_std::alloc::AllocVar;
+    use ark_r1cs_std::convert::ToBitsGadget;
     use ark_r1cs_std::fields::fp::FpVar;
     use ark_r1cs_std::uint32::UInt32;
     use ark_r1cs_std::R1CSVar;

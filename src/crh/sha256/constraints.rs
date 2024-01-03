@@ -20,6 +20,7 @@ use ark_r1cs_std::{
 };
 use ark_relations::r1cs::{ConstraintSystemRef, Namespace, SynthesisError};
 use ark_std::{vec, vec::Vec};
+use ark_std::ops::BitXor;
 
 const STATE_LEN: usize = 8;
 
@@ -75,18 +76,18 @@ impl<ConstraintF: PrimeField> Sha256Gadget<ConstraintF> {
 
         for i in 16..64 {
             let s0 = {
-                let x1 = w[i - 15].rotr(7);
-                let x2 = w[i - 15].rotr(18);
+                let x1 = w[i - 15].rotate_right(7);
+                let x2 = w[i - 15].rotate_right(18);
                 let x3 = w[i - 15].shr(3);
-                x1.xor(&x2)?.xor(&x3)?
+                x1.bitxor(&x2).bitxor(&x3)
             };
             let s1 = {
-                let x1 = w[i - 2].rotr(17);
-                let x2 = w[i - 2].rotr(19);
+                let x1 = w[i - 2].rotate_right(17);
+                let x2 = w[i - 2].rotate_right(19);
                 let x3 = w[i - 2].shr(10);
-                x1.xor(&x2)?.xor(&x3)?
+                x1.bitxor(&x2).bitxor(&x3)
             };
-            w[i] = UInt32::addmany(&[w[i - 16].clone(), s0, w[i - 7].clone(), s1])?;
+            w[i] = UInt32::saturating_add_many(&[w[i - 16].clone(), s0, w[i - 7].clone(), s1])?;
         }
 
         let mut h = state.to_vec();
@@ -94,42 +95,42 @@ impl<ConstraintF: PrimeField> Sha256Gadget<ConstraintF> {
             let ch = {
                 let x1 = h[4].bitand(&h[5])?;
                 let x2 = h[4].not().bitand(&h[6])?;
-                x1.xor(&x2)?
+                x1.bitxor(&x2)
             };
             let ma = {
                 let x1 = h[0].bitand(&h[1])?;
                 let x2 = h[0].bitand(&h[2])?;
                 let x3 = h[1].bitand(&h[2])?;
-                x1.xor(&x2)?.xor(&x3)?
+                x1.bitxor(&x2).bitxor(&x3)
             };
             let s0 = {
-                let x1 = h[0].rotr(2);
-                let x2 = h[0].rotr(13);
-                let x3 = h[0].rotr(22);
-                x1.xor(&x2)?.xor(&x3)?
+                let x1 = h[0].rotate_right(2);
+                let x2 = h[0].rotate_right(13);
+                let x3 = h[0].rotate_right(22);
+                x1.bitxor(&x2).bitxor(&x3)
             };
             let s1 = {
-                let x1 = h[4].rotr(6);
-                let x2 = h[4].rotr(11);
-                let x3 = h[4].rotr(25);
-                x1.xor(&x2)?.xor(&x3)?
+                let x1 = h[4].rotate_right(6);
+                let x2 = h[4].rotate_right(11);
+                let x3 = h[4].rotate_right(25);
+                x1.bitxor(&x2).bitxor(&x3)
             };
             let t0 =
-                UInt32::addmany(&[h[7].clone(), s1, ch, UInt32::constant(K[i]), w[i].clone()])?;
-            let t1 = UInt32::addmany(&[s0, ma])?;
+                UInt32::saturating_add_many(&[h[7].clone(), s1, ch, UInt32::constant(K[i]), w[i].clone()])?;
+            let t1 = UInt32::saturating_add_many(&[s0, ma])?;
 
             h[7] = h[6].clone();
             h[6] = h[5].clone();
             h[5] = h[4].clone();
-            h[4] = UInt32::addmany(&[h[3].clone(), t0.clone()])?;
+            h[4] = UInt32::saturating_add_many(&[h[3].clone(), t0.clone()])?;
             h[3] = h[2].clone();
             h[2] = h[1].clone();
             h[1] = h[0].clone();
-            h[0] = UInt32::addmany(&[t0, t1])?;
+            h[0] = UInt32::saturating_add_many(&[t0, t1])?;
         }
 
         for (s, hi) in state.iter_mut().zip(h.iter()) {
-            *s = UInt32::addmany(&[s.clone(), hi.clone()])?;
+            *s = UInt32::saturating_add_many(&[s.clone(), hi.clone()])?;
         }
 
         Ok(())

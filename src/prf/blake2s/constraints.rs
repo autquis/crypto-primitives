@@ -3,6 +3,7 @@ use ark_relations::r1cs::{ConstraintSystemRef, Namespace, SynthesisError};
 
 use crate::{prf::PRFGadget, Vec};
 use ark_r1cs_std::prelude::*;
+use ark_std::ops::BitXor;
 
 use core::borrow::Borrow;
 
@@ -85,14 +86,14 @@ fn mixing_g<ConstraintF: PrimeField>(
     x: &UInt32<ConstraintF>,
     y: &UInt32<ConstraintF>,
 ) -> Result<(), SynthesisError> {
-    v[a] = UInt32::addmany(&[v[a].clone(), v[b].clone(), x.clone()])?;
-    v[d] = v[d].xor(&v[a])?.rotr(R1);
-    v[c] = UInt32::addmany(&[v[c].clone(), v[d].clone()])?;
-    v[b] = v[b].xor(&v[c])?.rotr(R2);
-    v[a] = UInt32::addmany(&[v[a].clone(), v[b].clone(), y.clone()])?;
-    v[d] = v[d].xor(&v[a])?.rotr(R3);
-    v[c] = UInt32::addmany(&[v[c].clone(), v[d].clone()])?;
-    v[b] = v[b].xor(&v[c])?.rotr(R4);
+    v[a] = UInt32::saturating_add_many(&[v[a].clone(), v[b].clone(), x.clone()])?;
+    v[d] = v[d].bitxor(&v[a]).rotate_right(R1);
+    v[c] = UInt32::saturating_add_many(&[v[c].clone(), v[d].clone()])?;
+    v[b] = v[b].bitxor(&v[c]).rotate_right(R2);
+    v[a] = UInt32::saturating_add_many(&[v[a].clone(), v[b].clone(), y.clone()])?;
+    v[d] = v[d].bitxor(&v[a]).rotate_right(R3);
+    v[c] = UInt32::saturating_add_many(&[v[c].clone(), v[d].clone()])?;
+    v[b] = v[b].bitxor(&v[c]).rotate_right(R4);
 
     Ok(())
 }
@@ -173,11 +174,11 @@ fn blake2s_compression<ConstraintF: PrimeField>(
 
     assert_eq!(v.len(), 16);
 
-    v[12] = v[12].xor(&UInt32::constant(t as u32))?;
-    v[13] = v[13].xor(&UInt32::constant((t >> 32) as u32))?;
+    v[12] = v[12].bitxor(&UInt32::constant(t as u32));
+    v[13] = v[13].bitxor(&UInt32::constant((t >> 32) as u32));
 
     if f {
-        v[14] = v[14].xor(&UInt32::constant(u32::max_value()))?;
+        v[14] = v[14].bitxor(&UInt32::constant(u32::max_value()));
     }
 
     for i in 0..10 {
@@ -194,8 +195,8 @@ fn blake2s_compression<ConstraintF: PrimeField>(
     }
 
     for i in 0..8 {
-        h[i] = h[i].xor(&v[i])?;
-        h[i] = h[i].xor(&v[i + 8])?;
+        h[i] = h[i].bitxor(&v[i]);
+        h[i] = h[i].bitxor(&v[i + 8]);
     }
 
     Ok(())
@@ -243,14 +244,14 @@ pub fn evaluate_blake2s_with_parameters<F: PrimeField>(
     assert!(input.len() % 8 == 0);
 
     let mut h = Vec::with_capacity(8);
-    h.push(UInt32::constant(0x6A09E667).xor(&UInt32::constant(parameters[0]))?);
-    h.push(UInt32::constant(0xBB67AE85).xor(&UInt32::constant(parameters[1]))?);
-    h.push(UInt32::constant(0x3C6EF372).xor(&UInt32::constant(parameters[2]))?);
-    h.push(UInt32::constant(0xA54FF53A).xor(&UInt32::constant(parameters[3]))?);
-    h.push(UInt32::constant(0x510E527F).xor(&UInt32::constant(parameters[4]))?);
-    h.push(UInt32::constant(0x9B05688C).xor(&UInt32::constant(parameters[5]))?);
-    h.push(UInt32::constant(0x1F83D9AB).xor(&UInt32::constant(parameters[6]))?);
-    h.push(UInt32::constant(0x5BE0CD19).xor(&UInt32::constant(parameters[7]))?);
+    h.push(UInt32::constant(0x6A09E667).bitxor(&UInt32::constant(parameters[0])));
+    h.push(UInt32::constant(0xBB67AE85).bitxor(&UInt32::constant(parameters[1])));
+    h.push(UInt32::constant(0x3C6EF372).bitxor(&UInt32::constant(parameters[2])));
+    h.push(UInt32::constant(0xA54FF53A).bitxor(&UInt32::constant(parameters[3])));
+    h.push(UInt32::constant(0x510E527F).bitxor(&UInt32::constant(parameters[4])));
+    h.push(UInt32::constant(0x9B05688C).bitxor(&UInt32::constant(parameters[5])));
+    h.push(UInt32::constant(0x1F83D9AB).bitxor(&UInt32::constant(parameters[6])));
+    h.push(UInt32::constant(0x5BE0CD19).bitxor(&UInt32::constant(parameters[7])));
 
     let mut blocks: Vec<Vec<UInt32<F>>> = vec![];
 
